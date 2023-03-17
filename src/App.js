@@ -1,18 +1,39 @@
 import logo from './logo.svg';
 import './App.css';
+import { useState, useEffect } from 'react';
 
 function App() {
+    let board = ['', '', '', '', '', '', '', '', ''];
+    const [cells, setCells] = useState(board);
+    // Lưu giá trị đánh
+    const [player, setPlayer] = useState('X');
+
+    function handleCellClick(index) {
+        // Gía trị các ô
+        const newBoard = [...cells];
+        if (newBoard[index] === '') {
+            newBoard[index] = player;
+            setCells(newBoard);
+            console.log(cells);
+            setPlayer(player === 'X' ? 'O' : 'X');
+        }
+    }
+    useEffect(() => {
+        const checkDraw = cells.every((cell) => cell !== '');
+        if (checkDraw) {
+            setTimeout(() => {
+                alert('Game is draw!');
+                setCells(board);
+            }, 500);
+        }
+    }, [cells]);
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-                <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-                    Learn React
-                </a>
-            </header>
+        <div className="board">
+            {cells.map((cell, index) => (
+                <div className="cell" key={index} onClick={() => handleCellClick(index)}>
+                    {cell}
+                </div>
+            ))}
         </div>
     );
 }
