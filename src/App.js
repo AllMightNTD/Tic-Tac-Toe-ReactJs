@@ -6,22 +6,32 @@ import History from './components/actions/history';
 function App() {
     const [rows, setRows] = useState(0);
     const [cols, setCols] = useState(0);
+
+    // State ma trận 2 chiều
     const [matrix, setMatrix] = useState([]);
+
+    // state lưu lịch sử đi
     const [move, setMove] = useState([]);
     const [player, setPlayer] = useState('X');
+
+    // State lưu đường đi đến chiến thắng
+    const [winningPath, setWinningPath] = useState([]);
 
     // Check winner
     const [winningLength, setWinningLength] = useState(3);
 
+    // Set hàng
     const handleRowsChange = (event) => {
         setRows(event.target.value);
     };
 
+    // Set cột
     const handleColsChange = (event) => {
         setCols(event.target.value);
     };
     const handleSubmitMatrix = () => {
         setMatrix(Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0)));
+        setMove([]);
     };
 
     const HandleCellClick = (row, cell) => {
@@ -33,10 +43,22 @@ function App() {
             newMatrix[row][cell] = player;
             setMatrix(newMatrix);
             const checkWinner = checkWin(row, cell, matrix, cols, rows, winningLength);
-            if (checkWinner) {
+            console.log(checkWinner);
+            if (checkWinner.isWin) {
+                console.log(row, cell);
+                setWinningPath(checkWinner.winningCells);
                 setTimeout(() => {
                     alert(matrix[row][cell] + ' đã win');
                     setPlayer('X');
+                    setWinningPath([]);
+                    setMatrix([]);
+                    setMove([]);
+                }, [500]);
+            } else if (matrix.every((row) => row.every((val) => val !== 0))) {
+                setTimeout(() => {
+                    alert('2 đội Hòa Nhau');
+                    setPlayer('X');
+                    setWinningPath([]);
                     setMatrix([]);
                     setMove([]);
                 }, [500]);
@@ -45,8 +67,6 @@ function App() {
             }
         }
     };
-    console.log(matrix);
-
     useEffect(() => {
         if (rows < 10 || cols < 10) {
             setWinningLength(3);
@@ -65,7 +85,7 @@ function App() {
         }
         return false;
     };
-
+    console.log(winningPath);
     return (
         <div>
             <div>
@@ -84,7 +104,16 @@ function App() {
                     {matrix.map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {row.map((cell, colIndex) => (
-                                <td key={colIndex} onClick={() => HandleCellClick(rowIndex, colIndex)}>
+                                <td
+                                    key={colIndex}
+                                    style={{
+                                        // Kiểm tra đường đi đến chiến thắng có chứa chỉ mục vị trí chiến thắng hay không
+                                        backgroundColor: winningPath.some(([r, c]) => r === rowIndex && c === colIndex)
+                                            ? 'yellow'
+                                            : 'white',
+                                    }}
+                                    onClick={() => HandleCellClick(rowIndex, colIndex)}
+                                >
                                     {matrix[rowIndex][colIndex] === 0 ? '' : matrix[rowIndex][colIndex]}
                                 </td>
                             ))}
