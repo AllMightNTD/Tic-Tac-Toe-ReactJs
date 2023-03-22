@@ -6,6 +6,7 @@ import History from './components/actions/history';
 function App() {
     const [rows, setRows] = useState(0);
     const [cols, setCols] = useState(0);
+    const [step, setStep] = useState(0);
 
     // State ma trận 2 chiều
     const [matrix, setMatrix] = useState([]);
@@ -16,7 +17,7 @@ function App() {
 
     // State lưu đường đi đến chiến thắng
     const [winningPath, setWinningPath] = useState([]);
-
+    console.log(winningPath);
     // Check winner
     const [winningLength, setWinningLength] = useState(3);
 
@@ -32,25 +33,30 @@ function App() {
     const handleSubmitMatrix = () => {
         setMatrix(Array.from({ length: rows }, () => Array.from({ length: cols }, () => 0)));
         setMove([]);
+        setStep(0);
+        setPlayer('X');
+        setWinningPath([]);
+        if (rows < 10 || cols < 10) {
+            setWinningLength(3);
+        } else {
+            setWinningLength(5);
+        }
     };
-
     const HandleCellClick = (row, cell) => {
-        console.log(row, cell);
+        setStep(step + 1);
         const newMove = [...move, { row, cell }];
         setMove(newMove);
         const newMatrix = [...matrix];
+        console.log(newMatrix);
         if (newMatrix[row][cell] === 0) {
             newMatrix[row][cell] = player;
             setMatrix(newMatrix);
             const checkWinner = checkWin(row, cell, matrix, cols, rows, winningLength);
-            console.log(checkWinner);
             if (checkWinner.isWin) {
-                console.log(row, cell);
                 setWinningPath(checkWinner.winningCells);
                 setTimeout(() => {
                     alert(matrix[row][cell] + ' đã win');
                     setPlayer('X');
-                    setWinningPath([]);
                     setMatrix([]);
                     setMove([]);
                 }, [500]);
@@ -67,13 +73,6 @@ function App() {
             }
         }
     };
-    useEffect(() => {
-        if (rows < 10 || cols < 10) {
-            setWinningLength(3);
-        } else {
-            setWinningLength(5);
-        }
-    }, [rows, cols]);
 
     const checkEmptyValues = () => {
         for (let i = 0; i < matrix.length; i++) {
@@ -85,45 +84,50 @@ function App() {
         }
         return false;
     };
-    console.log(winningPath);
     return (
-        <div>
-            <div>
-                <label htmlFor="">Nhập số hàng</label>
-                <input type="number" onChange={handleRowsChange} />
-            </div>
-            <div>
-                <label htmlFor="">Nhập số cột</label>
-                <input type="number" onChange={handleColsChange} />
-            </div>
-            <button type="submit" onClick={handleSubmitMatrix}>
-                ADD
-            </button>
-            <table bordered>
-                <tbody>
-                    {matrix.map((row, rowIndex) => (
-                        <tr key={rowIndex}>
-                            {row.map((cell, colIndex) => (
-                                <td
-                                    key={colIndex}
-                                    style={{
-                                        // Kiểm tra đường đi đến chiến thắng có chứa chỉ mục vị trí chiến thắng hay không
-                                        backgroundColor: winningPath.some(([r, c]) => r === rowIndex && c === colIndex)
-                                            ? 'yellow'
-                                            : 'white',
-                                    }}
-                                    onClick={() => HandleCellClick(rowIndex, colIndex)}
-                                >
-                                    {matrix[rowIndex][colIndex] === 0 ? '' : matrix[rowIndex][colIndex]}
-                                </td>
+        <div className="container">
+            <div className="content">
+                <div className="table-content">
+                    <div className="form-input">
+                        <label htmlFor="">Nhập số hàng</label>
+                        <input type="number" onChange={handleRowsChange} />
+                    </div>
+                    <div className="form-input">
+                        <label htmlFor="">Nhập số cột</label>
+                        <input type="number" onChange={handleColsChange} />
+                    </div>
+                    <button type="submit" onClick={handleSubmitMatrix}>
+                        ADD
+                    </button>
+                    <table bordered>
+                        <tbody>
+                            {matrix.map((row, rowIndex) => (
+                                <tr key={rowIndex}>
+                                    {row.map((cell, colIndex) => (
+                                        <td
+                                            key={colIndex}
+                                            style={{
+                                                // Kiểm tra đường đi đến chiến thắng có chứa chỉ mục vị trí chiến thắng hay không
+                                                backgroundColor: winningPath.some(
+                                                    ([r, c]) => r === rowIndex && c === colIndex,
+                                                )
+                                                    ? 'yellow'
+                                                    : 'white',
+                                            }}
+                                            onClick={() => HandleCellClick(rowIndex, colIndex)}
+                                        >
+                                            {matrix[rowIndex][colIndex] === 0 ? '' : matrix[rowIndex][colIndex]}
+                                        </td>
+                                    ))}
+                                </tr>
                             ))}
-                        </tr>
-                    ))}
-                </tbody>
-                <div>
-                    <History move={move} />
+                        </tbody>
+                    </table>
                 </div>
-            </table>
+                <div>
+                    <History step={step} move={move} />
+                </div>
+            </div>
         </div>
     );
 }

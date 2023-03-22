@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const History = ({ move }) => {
+const History = ({ move, step }) => {
+    console.log(step);
     return (
         <div>
             {move.map((move, index) => (
-                <p className="my-0" key={index}>
-                    {move.row} , {move.cell}
+                <p className={index + 1 === step ? 'my-bold' : null} key={index}>
+                    Lượt 1 : ({move.row} , {move.cell})
                 </p>
             ))}
         </div>
